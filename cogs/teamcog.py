@@ -15,7 +15,7 @@ class TeamBot(commands.Cog):
     @commands.guild_only()
     @commands.command()
     async def createteam(self, ctx: commands.Context, *, name: str) -> None:
-        team = await self.get_team(ctx.author.id)
+        team = await self.get_team(ctx.author.id, ctx.guild)
         if team is not None:
             raise commands.CheckFailure('You already have a team')
         guild: discord.Guild = ctx.guild
@@ -43,13 +43,13 @@ class TeamBot(commands.Cog):
     @commands.guild_only()
     @commands.command()
     async def addmember (self, ctx: commands.Context, *, target: discord.Member) -> None:
-        team = await self.get_team(ctx.author.id)
+        team = await self.get_team(ctx.author.id, ctx.guild)
         if team is None:
             raise commands.CheckFailure("You don't have a team.  Make one with !createteam")
 
         await target.add_roles(team)
         await ctx.send(f'Added {target.mention} to {team.mention}', allowed_mentions=AllowedMentions(everyone=False, users=True, roles=False))
-        if await self.get_team(target.id) is None:
+        if await self.get_team(target.id, ctx.guild) is None:
             await self.redis.set(f'teambot:user:{target.id}', team.id)
         teamless = utils.find(lambda r: r.name == 'Teamless', ctx.guild.roles)
         if teamless:
@@ -73,11 +73,11 @@ class TeamBot(commands.Cog):
 
     ### Internals
 
-    async def get_team(self, uid: int) -> Optional[discord.Role]:
+    async def get_team(self, uid: int, guild: discord.Guild) -> Optional[discord.Role]:
         rid = await self.redis.get(f'teambot:user:{uid}')
         if rid is None:
             return None
-        return ctx.guild.get_role(int(rid))
+        return guild.get_role(int(rid))
 
 def setup(bot: commands.Bot) -> None:
     bot.add_cog(TeamBot(bot))
