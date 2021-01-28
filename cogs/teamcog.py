@@ -72,6 +72,8 @@ class TeamBot(commands.Cog):
 
     async def get_team(self, ctx: commands.Context):
         rid = await self.redis.get(f'teambot:user:{ctx.author.id}')
+        if rid is None:
+            return None
         return ctx.guild.get_role(int(rid))
 
 def setup(bot: commands.Bot) -> None:
