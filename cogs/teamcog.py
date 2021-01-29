@@ -25,7 +25,7 @@ class TeamBot(commands.Cog):
         if utils.find(lambda r: r.name == rolename, guild.roles):
             raise commands.BadArgument(f'A team called "{rolename}" already exists.  Either ask someone to add you, or choose a more unique name.')
         uid = user.id
-        role: discord.Role = await guild.create_role(name=rolename)
+        role: discord.Role = await guild.create_role(name=rolename, mentionable=True)
         await self.redis.set(f'teambot:user:{uid}', role.id)
         await user.add_roles(role)
         overwrites = {
@@ -71,11 +71,22 @@ class TeamBot(commands.Cog):
         await ctx.send(f'{oldname} was renamed to Team {name}')
 
     @commands.guild_only()
+    @commands.command()
+    async def fixping(self, ctx: commands.Context) -> None:
+        team = await self.get_team(ctx.author, ctx.guild)
+        if team is None:
+            raise commands.CheckFailure("You don't have a team.  Make one with !createteam")
+        await team.edit(mentionable=True)
+        await ctx.send(f'{team.mention} can be tagged now')
+
+    @commands.guild_only()
     @commands.is_owner()
     @commands.command()
     async def channelcount (self, ctx: commands.Context) -> None:
         guild: discord.Guild = ctx.guild
         await ctx.send(f'The server is currently at {len(guild.channels)} channels')
+
+
 
     ### Events
 
