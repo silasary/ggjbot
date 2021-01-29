@@ -2,6 +2,7 @@ from typing import Optional
 import discord
 import traceback
 from discord import utils
+from discord import reaction
 from discord.ext import commands
 from discord.mentions import AllowedMentions
 
@@ -70,6 +71,26 @@ class TeamBot(commands.Cog):
             await ctx.send(f"Error executing command `{ctx.command.name}`: {str(error)}")
         else:
             await ctx.send("There was an error processing your command")
+
+    @commands.Cog.listener('on_raw_reaction_remove')
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent) -> None:
+        if payload.emoji.name == '📌':
+            add = payload.event_type == 'REACTION_ADD'
+            channel: discord.TextChannel = self.bot.get_channel(payload.channel_id)
+            if not channel.name == 'team-chat':
+                return
+            msg: discord.Message = utils.get(self.bot.cached_messages, id=payload.message_id) or await channel.fetch_message(payload.message_id)
+            if add:
+                await msg.pin()
+            else:
+                reaction = utils.find(lambda r: r.emoji == '📌', msg.reactions)
+                if reaction and reaction.count > 1:
+                    return
+                # raw fires before count is updated, so this is off-by-one if it's in the cache (but not if we fetched it)
+                await msg.unpin()
+
+
 
     ### Internals
 
