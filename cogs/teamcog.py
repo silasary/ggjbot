@@ -56,6 +56,27 @@ class TeamBot(commands.Cog):
         if teamless:
             await target.remove_roles(teamless)
 
+    @commands.guild_only()
+    @commands.command()
+    async def renameteam (self, ctx: commands.Context, *, name: str) -> None:
+        team = await self.get_team(ctx.author, ctx.guild)
+        if team is None:
+            raise commands.CheckFailure("You don't have a team.  Make one with !createteam")
+
+        oldname = team.name
+        guild: discord.Guild = ctx.guild
+        cat = utils.find(lambda c: c.name == team.name, guild.categories)
+        await cat.edit(name= f'Team {name}')
+        await team.edit(name=f'Team {name}')
+        await ctx.send(f'{oldname} was renamed to Team {name}')
+
+    @commands.guild_only()
+    @commands.is_owner()
+    @commands.command()
+    async def channelcount (self, ctx: commands.Context) -> None:
+        guild: discord.Guild = ctx.guild
+        await ctx.send(f'The server is currently at {len(guild.channels)} channels')
+
     ### Events
 
     async def cog_command_error(self, ctx: commands.Context, error) -> None:
