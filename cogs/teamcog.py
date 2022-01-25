@@ -173,7 +173,7 @@ class TeamBot(dis_snek.Scale):
 
     @listen()
     async def on_message_reaction_add(self, event: MessageReactionAdd) -> None:
-        if event.emoji == '📌':
+        if event.emoji.name == '📌':
             channel: GuildText = self.bot.get_channel(event.message.channel.id)
             if not channel.name == 'team-chat':
                 return
@@ -182,12 +182,12 @@ class TeamBot(dis_snek.Scale):
 
     @listen()
     async def on_message_reaction_remove(self, event: MessageReactionRemove) -> None:
-        if event.emoji == '📌':
+        if event.emoji.name == '📌':
             channel: GuildText = self.bot.get_channel(event.message.channel.id)
             if not channel.name == 'team-chat':
                 return
 
-            reaction = misc_utils.find(lambda r: r.emoji == '📌', event.message.reactions)
+            reaction = misc_utils.find(lambda r: r.emoji.name == '📌', event.message.reactions)
             if reaction and reaction.count > 1:
                 return
             # raw fires before count is updated, so this is off-by-one if it's in the cache (but not if we fetched it)
