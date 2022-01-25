@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3f267b5361f075f260e98095c6599aa18ba9227bbd798c4cbb411a020291c495"
+            "sha256": "998eb5057d4cbec34689c80c2c280b4a980d6c0155db8c81e7e6c87dda5e0492"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -143,7 +143,7 @@
                 "sha256:876d180e9d7432c5d1dfd4c5d26b72f099d503e8fcc0feb7532c9289be60fcbd",
                 "sha256:cb957888737fc0bbcd78e3df769addb41fd1ff8cf950dc9e7ad7793f1bf44455"
             ],
-            "markers": "python_version >= '3.5'",
+            "markers": "python_full_version >= '3.5.0'",
             "version": "==2.0.10"
         },
         "dis-snek": {
@@ -152,7 +152,7 @@
         },
         "dis-taipan": {
             "git": "https://github.com/silasary/dis-taipan.git",
-            "ref": "f9809839e9e876cbdaf3a4731c69487ca36acfed"
+            "ref": "fc43685b944b51cbf73a3ba1d77f714311efe424"
         },
         "frozenlist": {
             "hashes": [
@@ -224,16 +224,8 @@
                 "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff",
                 "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"
             ],
-            "markers": "python_version >= '3.5'",
+            "markers": "python_full_version >= '3.5.0'",
             "version": "==3.3"
-        },
-        "molter": {
-            "hashes": [
-                "sha256:1e4246ef845c08b924c074f2a46a11d4663256b2860f8177b7efca817c2f46cb",
-                "sha256:febe2ee955aa710d1b189a6b612690a9448a4a94d76df1606ec54e83790dc2b9"
-            ],
-            "index": "pypi",
-            "version": "==0.6.0"
         },
         "multidict": {
             "hashes": [
