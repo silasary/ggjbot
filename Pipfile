@@ -9,15 +9,15 @@ verify_ssl = true
 name = "torch"
 
 [requires]
-python_version = "3.8"
+python_version = "3.10"
 
 [packages]
-"discord.py" = "*"
+dis-snek = {ref = "dev", git = "https://github.com/Discord-Snake-Pit/Dis-Snek.git"}
+"molter" = "*"
 aioredis = "*"
-ajani = {git = "https://github.com/silasary/modbot.git"}
 sentry-sdk = "*"
-jishaku = "*"
 python-dotenv = "*"
+dis-taipan = {git = "https://github.com/silasary/dis-taipan.git"}
 
 [dev-packages]
 autopep8 = "*"
@@ -28,4 +28,7 @@ pre-commit = "*"
 pytest = "*"
 
 [pipenv]
-allow_prereleases = true
+allow_prereleases = false
+
+[scripts]
+"run" = "python main.py"

@@ -1,34 +1,31 @@
-import discord
-import discord.ext.commands
-import discord.ext.tasks
-import os
-import dotenv
 import asyncio
-import aioredis
 import os
+
+import aioredis
+import dis_snek
+import dotenv
 
 dotenv.load_dotenv()
 
-class Bot(discord.ext.commands.Bot):
+class Bot(dis_snek.Snake):
     def __init__(self) -> None:
-        self.redis = asyncio.get_event_loop().run_until_complete(asyncio.ensure_future(aioredis.create_redis_pool(os.getenv('REDIS_URL', default='redis://localhost'), password=os.getenv('REDIS_PASSWORD'))))
-        intents = discord.Intents.default()
-        intents.members = True
-        super().__init__(command_prefix=discord.ext.commands.when_mentioned_or('!'), intents=intents)
-        super().load_extension('discordbot.owner')
-        # super().load_extension('discordbot.updater')
-        super().load_extension('jishaku')
+        self.redis = aioredis.from_url(os.getenv('REDIS_URL', default='redis://localhost'), password=os.getenv('REDIS_PASSWORD'))
+        intents = dis_snek.Intents.DEFAULT | dis_snek.Intents.GUILD_MEMBERS
+
+        super().__init__(default_prefix='!', intents=intents, sync_interactions=True, delete_unused_application_cmds=True)
+        super().load_extension('dis_snek.ext.debug_scale')
         super().load_extension('cogs.teamcog')
+        super().load_extension('dis_taipan.updater')
+        super().load_extension('dis_taipan.sentry')
 
 
+    @dis_snek.listen()
     async def on_ready(self) -> None:
-        print('Logged in as {username} ({id})'.format(username=self.user.name, id=self.user.id))
-        print('Connected to {0}'.format(', '.join([server.name for server in self.guilds])))
-        print('--------')
+        print(f'{self.user} has connected to Discord!')
 
 def init() -> None:
     client = Bot()
-    client.run(os.getenv('DISCORD_TOKEN'))
+    client.start(os.getenv('DISCORD_TOKEN'))
 
 if __name__ == "__main__":
     init()
