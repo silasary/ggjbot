@@ -13,7 +13,7 @@ class Bot(dis_snek.Snake):
         intents = dis_snek.Intents.DEFAULT | dis_snek.Intents.GUILD_MEMBERS
 
         super().__init__(default_prefix='!', intents=intents, sync_interactions=True, delete_unused_application_cmds=True)
-        super().load_extension('dis_snek.ext.debug_scale')
+        # super().load_extension('dis_snek.ext.debug_scale')
         super().load_extension('cogs.teamcog')
         super().load_extension('dis_taipan.updater')
         super().load_extension('dis_taipan.sentry')

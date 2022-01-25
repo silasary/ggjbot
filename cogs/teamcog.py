@@ -1,3 +1,4 @@
+from dis_snek import MISSING
 import traceback
 from typing import Optional
 
@@ -53,7 +54,7 @@ class TeamBot(dis_snek.Scale):
             PermissionOverwrite(id=role.id, type=OverwriteTypes.ROLE, allow=Permissions.VIEW_CHANNEL),  # @role
         ]
 
-        cat = await guild.create_category(rolename, permission_overwrites=overwrites)
+        cat = await guild.create_category(rolename, permission_overwrites=overwrites, position=MISSING)
         text: GuildText = await guild.create_text_channel('team-chat', category=cat)
         await guild.create_voice_channel('Voice', category=cat)
         await ctx.send(f'Created {text.mention} for {role.mention}', allowed_mentions=AllowedMentions.none())
@@ -174,7 +175,7 @@ class TeamBot(dis_snek.Scale):
     @listen()
     async def on_message_reaction_add(self, event: MessageReactionAdd) -> None:
         if event.emoji.name == '📌':
-            channel: GuildText = self.bot.get_channel(event.message.channel.id)
+            channel: GuildText = await self.bot.get_channel(event.message.channel.id)
             if not channel.name == 'team-chat':
                 return
 
@@ -183,7 +184,7 @@ class TeamBot(dis_snek.Scale):
     @listen()
     async def on_message_reaction_remove(self, event: MessageReactionRemove) -> None:
         if event.emoji.name == '📌':
-            channel: GuildText = self.bot.get_channel(event.message.channel.id)
+            channel: GuildText = await self.bot.get_channel(event.message.channel.id)
             if not channel.name == 'team-chat':
                 return
 
