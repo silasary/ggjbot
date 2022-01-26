@@ -87,7 +87,7 @@ class TeamBot(dis_snek.Scale):
     async def addtoteam(self, ctx, person):
         team = await self.get_team(ctx.author, ctx.guild)
         if team is None:
-            raise CommandException("You don't have a team.  Make one with !createteam")
+            raise CommandException("You don't have a team.  Make one with `/team create`")
 
         await person.add_role(team)
         await ctx.send(f'Added {person.mention} to {team.mention}', allowed_mentions=AllowedMentions(users=[person], roles=[]))
@@ -107,7 +107,7 @@ class TeamBot(dis_snek.Scale):
             raise CommandException("This command doesn't work in DMs")
         team = await self.get_team(ctx.author, ctx.guild)
         if team is None:
-            raise CommandException("You don't have a team.  Make one with !createteam")
+            raise CommandException("You don't have a team.  Make one with `/team create`")
 
         oldname = team.name
         guild: Guild = ctx.guild
@@ -123,7 +123,7 @@ class TeamBot(dis_snek.Scale):
 
     #     team = await self.get_team(ctx.author, ctx.guild)
     #     if team is None:
-    #         raise CommandException("You don't have a team.  Make one with !createteam")
+    #         raise CommandException("You don't have a team.  Make one with `/team create`")
     #     await team.edit(mentionable=True)
     #     await ctx.send(f'{team.mention} can be tagged now')
 
