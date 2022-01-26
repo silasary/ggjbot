@@ -9,7 +9,7 @@ from dis_snek import (Context, OptionTypes, Snake, check, context_menu,
 from dis_snek.api.events import MessageReactionAdd, MessageReactionRemove
 from dis_snek.client.errors import CommandException
 from dis_snek.client.utils import misc_utils
-from dis_snek.models import (AllowedMentions, CommandTypes, Guild, GuildText,
+from dis_snek.models import (AllowedMentions, CommandTypes, Guild, GuildText, Embed,
                              InteractionContext, Member, MessageContext,
                              OverwriteTypes, PermissionOverwrite, Permissions,
                              Role)
@@ -157,6 +157,25 @@ class TeamBot(dis_snek.Scale):
                     await channel.delete(reason='No one on the team')
 
         await ctx.send(f'Flushed {f}/{n} teams')
+
+    @message_command('debug_team')
+    async def debug_team(self, ctx: Context, snowflake: int) -> None:
+        snowflake = int(snowflake)
+        if not ctx.guild:
+            raise CommandException("This command doesn't work in DMs")
+        member = await ctx.guild.get_member(snowflake)
+        embed = Embed(title=str(member))
+        team = await self.get_team(member, ctx.guild)
+        if team is not None:
+            embed.add_field(name='Team', value=team.name)
+            embed.add_field(name='Team ID', value=team.id)
+            embed.add_field(name='Team Members', value=', '.join(map(lambda m: m.display_name, team.members)))
+        else:
+            embed.add_field(name='Team', value='None')
+        rid = await self.redis.get(f'teambot:user:{member.id}')
+        embed.add_field(name=f'`teambot:user:{member.id}`', value=rid)
+        await ctx.send(embed=embed)
+
 
     ### Events
     @team.error
