@@ -5,7 +5,7 @@ from typing import Optional
 import dis_snek
 from dis_snek import (Context, OptionTypes, Snake, check, context_menu,
                       guild_only, listen, message_command, slash_command,
-                      slash_option)
+                      slash_option, checks)
 from dis_snek.api.events import MessageReactionAdd, MessageReactionRemove
 from dis_snek.client.errors import CommandException
 from dis_snek.client.utils import misc_utils
@@ -134,6 +134,7 @@ class TeamBot(dis_snek.Scale):
         guild: Guild = ctx.guild
         await ctx.send(f'The server is currently at {len(guild.channels)} channels')
 
+    @check(checks.is_owner())
     @message_command('flush_teams')
     async def flush(self, ctx: MessageContext) -> None:
         if not ctx.guild:
@@ -174,6 +175,7 @@ class TeamBot(dis_snek.Scale):
             embed.add_field(name='Team', value='None')
         rid = await self.redis.get(f'teambot:user:{member.id}')
         embed.add_field(name=f'`teambot:user:{member.id}`', value=rid)
+        embed.add_field(name='User Roles', value=repr(member.roles))
         await ctx.send(embed=embed)
 
 
@@ -224,7 +226,7 @@ class TeamBot(dis_snek.Scale):
             return await self.find_team(user)
         if role in user.roles:
             return role
-        return None
+        return await self.find_team(user)
 
     async def find_team(self, user: Member) -> Optional[Role]:
         for r in user.roles:
