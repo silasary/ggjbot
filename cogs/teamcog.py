@@ -35,14 +35,14 @@ class TeamBot(dis_snek.Scale):
         """
         Create a new team.
         """
-
+        await ctx.defer(True)
         team = await self.get_team(ctx.author, ctx.guild)
         if team is not None:
             raise CommandException('You already have a team')
         guild: Guild = ctx.guild
         user: Member = ctx.author
         rolename = f'Team {name}'
-        if misc_utils.find(lambda r: r.name == rolename, guild.roles):
+        if misc_utils.find(lambda r: r.name.casefold() == rolename.casefold(), guild.roles) is not None:
             raise CommandException(f'A team called "{rolename}" already exists.  Either ask someone to add you, or choose a more unique name.')
         uid = user.id
         role: Role = await guild.create_role(name=rolename, mentionable=True, reason=f'Created by {user.display_name}', permissions=Permissions(0))
@@ -99,7 +99,7 @@ class TeamBot(dis_snek.Scale):
 
     @team.subcommand('rename')
     @slash_option('name', 'The new name of your team', OptionTypes.STRING, required=True)
-    async def renameteam (self, ctx: Context, *, name: str) -> None:
+    async def renameteam (self, ctx: InteractionContext, *, name: str) -> None:
         """
         Rename your team.
         """
@@ -127,6 +127,36 @@ class TeamBot(dis_snek.Scale):
     #     await team.edit(mentionable=True)
     #     await ctx.send(f'{team.mention} can be tagged now')
 
+    @team.subcommand('leave')
+    async def leaveteam(self, ctx: InteractionContext) -> None:
+        """
+        Leave your team.
+        """
+        if not ctx.guild:
+            raise CommandException("This command doesn't work in DMs")
+
+        team = await self.get_team(ctx.author, ctx.guild)
+        if team is None:
+            raise CommandException("You don't have a team.  Make one with `/team create`")
+
+        await ctx.author.remove_roles(team)
+        await ctx.send(f'You are no longer in {team.mention}', allowed_mentions=AllowedMentions.none())
+        await self.redis.delete(f'teambot:user:{ctx.author.id}')
+
+    # @team.subcommand('delete')
+    async def deleteteam (self, ctx: InteractionContext) -> None:
+        """
+        Delete your team.  WARNING: This cannot be undone.
+        """
+        if not ctx.guild:
+            raise CommandException("This command doesn't work in DMs")
+        await ctx.defer(True)
+        team = await self.get_team(ctx.author, ctx.guild)
+        if team is None:
+            raise CommandException("You don't have a team.  Make one with `/team create`")
+
+        await self._delete_team(ctx, team)
+
     @message_command('channelcount')
     async def channelcount (self, ctx: Context) -> None:
         if not ctx.guild:
@@ -147,20 +177,26 @@ class TeamBot(dis_snek.Scale):
                 n += 1
         await ctx.send(f'Found {n} teams')
         f = 0
-        for name, role in teams.items():
+        for role in teams.values():
             if not role.members:
-                await role.delete(reason='No one on the team')
-                await ctx.send(f'Deleted {name}')
+                await self._delete_team(ctx, role)
                 f += 1
-                if channel := misc_utils.find(lambda c: c.name == name, ctx.guild.channels):
-                    for c in channel.channels:
-                        await c.delete(reason='No one on the team')
-                    await channel.delete(reason='No one on the team')
 
         await ctx.send(f'Flushed {f}/{n} teams')
 
+    async def _delete_team(self, ctx, role) -> None:
+        await role.delete()
+        await ctx.send(f'Deleted {role.name}')
+        if channel := misc_utils.find(lambda c: c.name == role.name, ctx.guild.channels):
+            for c in channel.channels:
+                await c.delete()
+            await channel.delete()
+
     @message_command('debug_team')
     async def debug_team(self, ctx: Context, snowflake: int) -> None:
+        """
+        Shows debug info about a user's team.
+        """
         snowflake = int(snowflake)
         if not ctx.guild:
             raise CommandException("This command doesn't work in DMs")

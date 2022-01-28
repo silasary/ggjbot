@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "998eb5057d4cbec34689c80c2c280b4a980d6c0155db8c81e7e6c87dda5e0492"
+            "sha256": "0a85b4abc18624459bbc07a259d1c5473258264f34a12a63205df43ba18522d9"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -143,16 +143,16 @@
                 "sha256:876d180e9d7432c5d1dfd4c5d26b72f099d503e8fcc0feb7532c9289be60fcbd",
                 "sha256:cb957888737fc0bbcd78e3df769addb41fd1ff8cf950dc9e7ad7793f1bf44455"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "markers": "python_version >= '3.5'",
             "version": "==2.0.10"
         },
         "dis-snek": {
             "git": "https://github.com/Discord-Snake-Pit/Dis-Snek.git",
-            "ref": "7d755e25ee91ea462838099612ede02d3d83832e"
+            "ref": "61553adfa3a3993d02b8dadeb772e4e9ec6b4894"
         },
         "dis-taipan": {
             "git": "https://github.com/silasary/dis-taipan.git",
-            "ref": "fc43685b944b51cbf73a3ba1d77f714311efe424"
+            "ref": "4d2889ba746d3ab22f915ee4921d4dd03c1b4921"
         },
         "frozenlist": {
             "hashes": [
@@ -224,7 +224,7 @@
                 "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff",
                 "sha256:9d643ff0a55b762d5cdb124b8eaa99c66322e2157b69160bc32796e824360e6d"
             ],
-            "markers": "python_full_version >= '3.5.0'",
+            "markers": "python_version >= '3.5'",
             "version": "==3.3"
         },
         "multidict": {
@@ -302,11 +302,11 @@
         },
         "sentry-sdk": {
             "hashes": [
-                "sha256:141da032f0fa4c56f9af6b361fda57360af1789576285bd1944561f9c274f9c0",
-                "sha256:9aeff2a47f4038460296b920bf4d269284e8454e1c67547ee002ccafd9c2442b"
+                "sha256:4fc7960a82c95d906a0514cf4d9aacba1743eb9863a5b7c2a01c525a7d9b21e6",
+                "sha256:f7e54567937ebcbe938c4df1075ec891587faeb7c74184b88cf2894e47c86116"
             ],
             "index": "pypi",
-            "version": "==1.5.3"
+            "version": "==1.5.4"
         },
         "tomli": {
             "hashes": [
@@ -477,11 +477,11 @@
         },
         "identify": {
             "hashes": [
-                "sha256:d11469ff952a4d7fd7f9be520d335dc450f585d474b39b5dfb86a500831ab6c7",
-                "sha256:d27d10099844741c277b45d809bd452db0d70a9b41ea3cd93799ebbbcc6dcb29"
+                "sha256:233679e3f61a02015d4293dbccf16aa0e4996f868bd114688b8c124f18826706",
+                "sha256:cf06b1639e0dca0c184b1504d8b73448c99a68e004a80524c7923b95f7b6837c"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==2.4.5"
+            "version": "==2.4.6"
         },
         "iniconfig": {
             "hashes": [
