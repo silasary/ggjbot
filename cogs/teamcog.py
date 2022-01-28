@@ -12,7 +12,7 @@ from dis_snek.client.utils import misc_utils
 from dis_snek.models import (AllowedMentions, CommandTypes, Guild, GuildText, Embed,
                              InteractionContext, Member, MessageContext,
                              OverwriteTypes, PermissionOverwrite, Permissions,
-                             Role)
+                             Role, GuildCategory)
 
 
 class TeamBot(dis_snek.Scale):
@@ -127,7 +127,7 @@ class TeamBot(dis_snek.Scale):
     #     await team.edit(mentionable=True)
     #     await ctx.send(f'{team.mention} can be tagged now')
 
-    @team.subcommand('leave')
+    # @team.subcommand('leave')
     async def leaveteam(self, ctx: InteractionContext) -> None:
         """
         Leave your team.
@@ -184,13 +184,27 @@ class TeamBot(dis_snek.Scale):
 
         await ctx.send(f'Flushed {f}/{n} teams')
 
-    async def _delete_team(self, ctx, role) -> None:
+    async def _delete_team(self, ctx: Context, role: Role) -> None:
+        deleted_cat = await self.get_deleted_category(ctx)
         await role.delete()
         await ctx.send(f'Deleted {role.name}')
         if channel := misc_utils.find(lambda c: c.name == role.name, ctx.guild.channels):
             for c in channel.channels:
-                await c.delete()
+                if isinstance(c, GuildText):
+                    await c.edit(category=deleted_cat, name=role.name.lower().replace(' ', '-'))
+                    await c.send(f'Channel deleted by {ctx.author.mention}')
+                else:
+                    await c.delete()
             await channel.delete()
+
+    async def get_deleted_category(self, ctx: Context) -> GuildCategory:
+        deleted_cat = misc_utils.find(lambda c: c.name == 'Deleted Teams', ctx.guild.channels)
+        if deleted_cat is None:
+            overwrites = [
+                PermissionOverwrite(id=ctx.guild.id, type=OverwriteTypes.ROLE, deny=Permissions.VIEW_CHANNEL),  # @everyone
+            ]
+            deleted_cat = await ctx.guild.create_category('Deleted Teams', position=None, permission_overwrites=overwrites)
+        return deleted_cat
 
     @message_command('debug_team')
     async def debug_team(self, ctx: Context, snowflake: int) -> None:
@@ -262,7 +276,10 @@ class TeamBot(dis_snek.Scale):
             return await self.find_team(user)
         if role in user.roles:
             return role
-        return await self.find_team(user)
+        if frole := await self.find_team(user):
+            return frole
+        return role
+
 
     async def find_team(self, user: Member) -> Optional[Role]:
         for r in user.roles:
