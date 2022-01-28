@@ -35,7 +35,7 @@ class TeamBot(dis_snek.Scale):
         """
         Create a new team.
         """
-        await ctx.defer(True)
+        await ctx.defer(False)
         team = await self.get_team(ctx.author, ctx.guild)
         if team is not None:
             raise CommandException('You already have a team')
