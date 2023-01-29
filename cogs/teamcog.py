@@ -1,22 +1,22 @@
-from dis_snek import MISSING
+from naff import MISSING
 import traceback
 from typing import Optional
 
-import dis_snek
-from dis_snek import (Context, OptionTypes, Snake, check, context_menu,
-                      guild_only, listen, message_command, slash_command,
+import naff
+from naff import (Context, OptionTypes, check, context_menu,
+                      guild_only, listen, prefixed_command, slash_command,
                       slash_option, checks)
-from dis_snek.api.events import MessageReactionAdd, MessageReactionRemove
-from dis_snek.client.errors import CommandException
-from dis_snek.client.utils import misc_utils
-from dis_snek.models import (AllowedMentions, CommandTypes, Guild, GuildText, Embed,
-                             InteractionContext, Member, MessageContext,
+from naff.api.events import MessageReactionAdd, MessageReactionRemove
+from naff.client.errors import CommandException
+from naff.client.utils import misc_utils
+from naff.models import (AllowedMentions, CommandTypes, Guild, GuildText, Embed,
+                             InteractionContext, Member, PrefixedContext,
                              OverwriteTypes, PermissionOverwrite, Permissions,
                              Role, GuildCategory)
 
 
-class TeamBot(dis_snek.Scale):
-    def __init__(self, bot: dis_snek.Scale) -> None:
+class TeamBot(naff.Extension):
+    def __init__(self, bot: naff.Extension) -> None:
         self.redis = bot.redis
 
     ### Commands
@@ -81,7 +81,7 @@ class TeamBot(dis_snek.Scale):
         """
         if not ctx.guild:
             raise CommandException("This command doesn't work in DMs")
-        member = await ctx.guild.get_member(ctx.target_id)
+        member = await ctx.guild.fetch_member(ctx.target_id)
         await self.addtoteam(ctx, member)
 
     async def addtoteam(self, ctx, person):
@@ -157,7 +157,7 @@ class TeamBot(dis_snek.Scale):
 
         await self._delete_team(ctx, team)
 
-    @message_command('channelcount')
+    @prefixed_command('channelcount')
     async def channelcount (self, ctx: Context) -> None:
         if not ctx.guild:
             raise CommandException("This command doesn't work in DMs")
@@ -165,8 +165,8 @@ class TeamBot(dis_snek.Scale):
         await ctx.send(f'The server is currently at {len(guild.channels)} channels')
 
     @check(checks.is_owner())
-    @message_command('flush_teams')
-    async def flush(self, ctx: MessageContext) -> None:
+    @prefixed_command('flush_teams')
+    async def flush(self, ctx: PrefixedContext) -> None:
         if not ctx.guild:
             raise CommandException("This command doesn't work in DMs")
         n = 0
@@ -206,7 +206,7 @@ class TeamBot(dis_snek.Scale):
             deleted_cat = await ctx.guild.create_category('Deleted Teams', position=None, permission_overwrites=overwrites)
         return deleted_cat
 
-    @message_command('debug_team')
+    @prefixed_command('debug_team')
     async def debug_team(self, ctx: Context, snowflake: int) -> None:
         """
         Shows debug info about a user's team.
@@ -214,7 +214,7 @@ class TeamBot(dis_snek.Scale):
         snowflake = int(snowflake)
         if not ctx.guild:
             raise CommandException("This command doesn't work in DMs")
-        member = await ctx.guild.get_member(snowflake)
+        member = await ctx.guild.fetch_member(snowflake)
         embed = Embed(title=str(member))
         team = await self.get_team(member, ctx.guild)
         if team is not None:
@@ -271,7 +271,7 @@ class TeamBot(dis_snek.Scale):
         rid = await self.redis.get(f'teambot:user:{user.id}')
         if rid is None:
             return await self.find_team(user)
-        role = await guild.get_role(int(rid))
+        role = await guild.fetch_role(int(rid))
         if role is None:
             return await self.find_team(user)
         if role in user.roles:
@@ -287,6 +287,3 @@ class TeamBot(dis_snek.Scale):
                 await self.redis.set(f'teambot:user:{user.id}', r.id)
                 return r
         return None
-
-def setup(bot: Snake) -> None:
-    TeamBot(bot)
