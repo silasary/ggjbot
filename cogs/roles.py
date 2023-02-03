@@ -1,27 +1,61 @@
 import typing
 import naff
-from naff import Extension, listen, slash_command, Permissions, InteractionContext, Guild, Role
+from naff import (
+    Extension,
+    listen,
+    slash_command,
+    Permissions,
+    InteractionContext,
+    Guild,
+    Role,
+)
 from naff.client.utils import misc_utils
 from naff.api.events import MemberAdd
 
 ROLES = {
-
+    "Programmer": {
+        "emoji": None,
+    },
+    "Artist": {
+        "emoji": None,
+    },
+    "Writer": {
+        "emoji": None,
+    },
+    "Musician": {
+        "emoji": None,
+    },
+    "Producer": {
+        "emoji": None,
+    },
+    "Designer": {
+        "emoji": None,
+    },
+    "Accessibility": {
+        "emoji": None,
+    },
+    "Tabletop": {
+        "emoji": None,
+    },
 }
 
+
 def find_role(guild: Guild, name: str) -> Role | None:
-    return misc_utils.find(lambda r: r.name == name, guild.roles)
+    return misc_utils.find(lambda r: r.name.casefold() == name.casefold(), guild.roles)
+
 
 class Roles(Extension):
+    def __init__(self, bot: naff.Extension) -> None:
+        self.redis = bot.redis
+
     @listen()
     async def on_member_add(self, e: MemberAdd) -> None:
-        teamless = find_role(e.guild, 'Teamless')
+        teamless = find_role(e.guild, "Teamless")
         if teamless:
             await e.member.add_role(teamless)
 
-
-    @slash_command('rolepicker', default_member_permissions=Permissions.ADMINISTRATOR)
+    @slash_command("rolepicker", default_member_permissions=Permissions.ADMINISTRATOR)
     async def role_picker(self, ctx: InteractionContext) -> None:
-
         role_menu = naff.StringSelectMenu(
             options=[
                 naff.SelectOption(
@@ -33,21 +67,26 @@ class Roles(Extension):
                         id=None,
                         name=role["emoji"],
                         animated=False,
-                    ),
+                    )
+                    if role["emoji"]
+                    else None,
                 )
                 for name, role in ROLES.items()
             ],
-            placeholder="Choose a language.",
-            custom_id="roles",
+            placeholder="Choose your Jammer Roles.",
+            custom_id="jammer_roles",
             min_values=1,
             max_values=len(ROLES),
         )
 
-        await info_channel.send(components=role_menu)  # type: ignore
+        await ctx.channel.send(components=role_menu)  # type: ignore
+        for name in ROLES.keys():
+            r = find_role(ctx.guild, name)
+            if not r:
+                await ctx.guild.create_role(name)
         await ctx.send(":white_check_mark:", ephemeral=True)
 
-
-    @naff.component_callback("language_role")  # type: ignore
+    @naff.component_callback("jammer_roles")  # type: ignore
     async def on_astro_language_role_select(self, ctx: naff.ComponentContext):
         await ctx.defer(ephemeral=True)
 
@@ -68,15 +107,17 @@ class Roles(Extension):
             role = ROLES.get(language)
             if not role:
                 # this shouldn't happen
-                raise Exception('Invalid role selection')
+                raise Exception("Invalid role selection")
                 # return await utils.error_send(
                 #     ctx, ":x: The role you selected was invalid.", naff.MaterialColors.RED
                 # )
 
-            rid = role["id"]
+            rid = find_role(ctx.guild, language).id
             if ctx.author.has_role(rid):
                 author_roles.remove(rid)
-                removed.append(f"`{language}`")  # thankfully, the language here is its role name
+                removed.append(
+                    f"`{language}`"
+                )  # thankfully, the language here is its role name
             else:
                 author_roles.add(rid)
                 added.append(f"`{language}`")
@@ -91,4 +132,3 @@ class Roles(Extension):
             resp += f"Removed: {', '.join(removed)}."
         resp = resp.strip()  # not like it's needed, but still
         await ctx.send(resp, ephemeral=True)
-
