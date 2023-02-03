@@ -14,28 +14,28 @@ from naff.api.events import MemberAdd
 
 ROLES = {
     "Programmer": {
-        "emoji": None,
+        "emoji": "⌨️",
     },
     "Artist": {
-        "emoji": None,
+        "emoji": "🎨",
     },
     "Writer": {
-        "emoji": None,
+        "emoji": "🖋️",
     },
     "Musician": {
-        "emoji": None,
+        "emoji": "🎹",
     },
     "Producer": {
-        "emoji": None,
+        "emoji": "🗒️",
     },
     "Designer": {
-        "emoji": None,
+        "emoji": "📐",
     },
     "Accessibility": {
-        "emoji": None,
+        "emoji":"⚖️",
     },
     "Tabletop": {
-        "emoji": None,
+        "emoji": "♟️",
     },
 }
 
